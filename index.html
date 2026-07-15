@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Gilded Archive: Huckleberry Finn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-midnight: #080e14;
+            --panel-blue: #101b26;
+            --teal-glow: #38b000;
+            --amber-copper: #f4a261;
+            --soft-white: #e9ecef;
+            --muted-gray: #94a3b8;
+            --glass-border: rgba(244, 162, 97, 0.15);
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-midnight);
+            color: var(--soft-white);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(56, 176, 0, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 85% 75%, rgba(244, 162, 97, 0.04) 0%, transparent 45%);
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            padding: 5rem 1.5rem 3rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 4px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        header p {
+            color: var(--amber-copper);
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 5px;
+            margin-top: 0.8rem;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .museum-container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 1rem auto 5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            z-index: 10;
+        }
+
+        /* --- NAV CABINET --- */
+        .floorplan-section {
+            background: var(--panel-blue);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .floorplan-section h2 {
+            font-family: 'Cinzel', serif;
+            color: var(--muted-gray);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .floorplan-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        .room-blueprint {
+            background: rgba(8, 14, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.5rem 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            border-radius: 12px;
+        }
+
+        .room-blueprint i {
+            font-size: 1.4rem;
+            color: var(--muted-gray);
+            transition: var(--transition);
+        }
+
+        .room-blueprint span {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--muted-gray);
+            font-weight: bold;
+        }
+
+        .room-blueprint:hover {
+            border-color: var(--amber-copper);
+            background: rgba(244, 162, 97, 0.03);
+            transform: translateY(-3px);
+        }
+
+        .room-blueprint:hover i {
+            color: var(--amber-copper);
+            text-shadow: 0 0 10px rgba(244, 162, 97, 0.4);
+        }
+
+        .room-blueprint.active-room {
+            background: rgba(244, 162, 97, 0.08);
+            border: 1px solid var(--amber-copper);
+            box-shadow: 0 0 20px rgba(244, 162, 97, 0.1);
+        }
+
+        .room-blueprint.active-room i,
+        .room-blueprint.active-room span {
+            color: var(--amber-copper);
+        }
+
+        .room-blueprint.active-room span {
+            color: #ffffff;
+        }
+
+        /* --- GALLERY VIEW --- */
+        .gallery-room-view {
+            background: var(--panel-blue);
+            border: 1px solid var(--glass-border);
+            padding: 4rem;
+            border-radius: 16px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .museum-room {
+            display: none;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .museum-room.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .room-banner {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .room-banner .floor-number {
+            color: var(--amber-copper);
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            font-weight: bold;
+        }
+
+        .room-banner h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: #ffffff;
+            margin-top: 0.4rem;
+        }
+
+        /* --- EXHIBITION WALL --- */
+        .exhibition-wall {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        /* --- IMAGE FRAME --- */
+        .gold-framed-art {
+            background-color: var(--bg-midnight);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .gold-framed-art:hover {
+            border-color: var(--amber-copper);
+            box-shadow: 0 0 25px rgba(244, 162, 97, 0.15);
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            height: 380px;
+        }
+
+        .framed-media-source {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+            cursor: zoom-in;
+        }
+
+        .framed-media-source.active-slide {
+            display: flex;
+        }
+
+        /* Placeholder shown while image hasn't loaded yet */
+        .framed-media-source .img-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted-gray);
+            font-size: 0.8rem;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .framed-media-source img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* --- SLIDER ARROWS --- */
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(8, 14, 20, 0.85);
+            border: 1px solid var(--glass-border);
+            color: var(--soft-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 20;
+        }
+
+        .slider-arrow:hover {
+            border-color: var(--amber-copper);
+            color: var(--amber-copper);
+            background: var(--panel-blue);
+        }
+
+        .arrow-prev { left: 1.5rem; }
+        .arrow-next { right: 1.5rem; }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: rgba(8, 14, 20, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--amber-copper);
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+            z-index: 20;
+        }
+
+        /* --- PLACARD --- */
+        .brass-placard {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .brass-placard h3 {
+            font-family: 'Cinzel', serif;
+            color: #ffffff;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.5rem;
+        }
+
+        .brass-placard p {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--muted-gray);
+        }
+
+        .quote-casing {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-style: italic;
+            font-weight: 300;
+            background: rgba(8, 14, 20, 0.5);
+            border-left: 3px solid var(--amber-copper);
+            padding: 1.2rem 1.5rem;
+            font-size: 1.05rem;
+            color: var(--soft-white);
+            line-height: 1.6;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* --- AUDIO --- */
+        .audio-container {
+            margin-top: 0.5rem;
+            background: rgba(8, 14, 20, 0.6);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .audio-container h4 {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            color: var(--amber-copper);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        audio {
+            width: 100%;
+            height: 40px;
+            outline: none;
+        }
+
+        /* --- LIGHTBOX --- */
+        .lightbox-portal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(8, 14, 20, 0.97);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            cursor: zoom-out;
+        }
+
+        .lightbox-portal.open {
+            display: flex;
+        }
+
+        .lightbox-portal img {
+            max-width: 85%;
+            max-height: 85vh;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border-radius: 8px;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1200px) {
+            .floorplan-grid { grid-template-columns: repeat(3, 1fr); }
+            .exhibition-wall { grid-template-columns: 1fr; gap: 3rem; }
+        }
+
+        @media (max-width: 768px) {
+            .floorplan-grid { grid-template-columns: repeat(2, 1fr); }
+            .gallery-room-view { padding: 3rem 1.5rem; }
+            .room-banner h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>The Gilded Archive</h1>
+        <p>Huckleberry Finn Interactive Historical Museum</p>
+    </header>
+
+    <div class="museum-container">
+
+        <!-- NAV -->
+        <section class="floorplan-section">
+            <h2>Select an Exhibition Hall to Walk Inside</h2>
+            <div class="floorplan-grid">
+                <div class="room-blueprint active-room" onclick="navigateToRoom('gallery1', this)">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span>Gallery I</span>
+                </div>
+                <div class="room-blueprint" onclick="navigateToRoom('gallery2', this)">
+                    <i class="fa-solid fa-ship"></i>
+                    <span>Gallery II</span>
+                </div>
+                <div class="room-blueprint" onclick="navigateToRoom('gallery3', this)">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Gallery III</span>
+                </div>
+                <div class="room-blueprint" onclick="navigateToRoom('gallery4', this)">
+                    <i class="fa-solid fa-signature"></i>
+                    <span>Gallery IV</span>
+                </div>
+                <div class="room-blueprint" onclick="navigateToRoom('gallery5', this)">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>Gallery V</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERIES -->
+        <section class="gallery-room-view">
+
+            <!-- GALLERY I -->
+            <div id="gallery1" class="museum-room active">
+                <div class="room-banner">
+                    <span class="floor-number">East Wing — Hall A</span>
+                    <h2>Slavery in the American South</h2>
+                </div>
+                <div class="exhibition-wall">
+                    <div class="gold-framed-art">
+                        <div class="slider-arrow arrow-prev" onclick="changeSlide('gallery1', -1)"><i class="fa-solid fa-chevron-left"></i></div>
+                        <div class="slider-arrow arrow-next" onclick="changeSlide('gallery1', 1)"><i class="fa-solid fa-chevron-right"></i></div>
+                        <span class="slide-counter">1 / 10</span>
+                        <div class="slider-wrapper">
+                            <div class="framed-media-source active-slide" onclick="openExhibitZoom(this)"><img src="img/enslavery.webp" alt="Slavery in the South 1" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/s.jpg" alt="Slavery in the South 2" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/l.jpg" alt="Slavery in the South 3" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/a.jpg" alt="Slavery in the South 4" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/v.jpg" alt="Slavery in the South 5" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/e.jpg" alt="Slavery in the South 6" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/r.jpg" alt="Slavery in the South 7" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/y.jpg" alt="Slavery in the South 8" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/sl.jpg" alt="Slavery in the South 9" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/av.jpg" alt="Slavery in the South 10" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                        </div>
+                    </div>
+                    <div class="brass-placard">
+                        <h3>The System of Chattel Slavery</h3>
+                        <p>During the decades preceding the Civil War, the Southern United States built a highly lucrative agricultural empire fueled completely by enslaved labor. Enslaved persons had zero legal protections, and family units were routinely dissolved for economic gain.</p>
+                        <div class="quote-casing">
+                            "Miss Watson's Jim he was there, and I was going to help him escape. I knew the rules... but I couldn't let them trade him down the river."
+                        </div>
+                        <div class="audio-container">
+                            <h4><i class="fa-solid fa-volume-high"></i> Exhibition Audio Guide</h4>
+                            <audio controls preload="none">
+                                <source src="voice/New recording 20.m4a" type="audio/mp4">
+                                Audio not supported.
+                            </audio>
+                        </div>
+                        <div class="video-container" style="margin-top: 1rem; background: rgba(8, 14, 20, 0.6); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 12px;">
+    <h4 style="font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--amber-copper); margin-bottom: 0.5rem; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Exhibition Media
+    </h4>
+    <a href="https://www.youtube.com/watch?v=Ajn9g5Gsv98" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.75rem; color: #ffffff; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: rgba(244, 162, 97, 0.1); border: 1px solid var(--amber-copper); border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='rgba(244, 162, 97, 0.2)'" onmouseout="this.style.background='rgba(244, 162, 97, 0.1)'">
+        <i class="fa-solid fa-circle-play" style="color: var(--amber-copper); font-size: 1.2rem;"></i>
+        Watch: The System of Slavery
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GALLERY II -->
+            <div id="gallery2" class="museum-room">
+                <div class="room-banner">
+                    <span class="floor-number">East Wing — Hall B</span>
+                    <h2>Life Along the Mississippi River</h2>
+                </div>
+                <div class="exhibition-wall">
+                    <div class="gold-framed-art">
+                        <div class="slider-arrow arrow-prev" onclick="changeSlide('gallery2', -1)"><i class="fa-solid fa-chevron-left"></i></div>
+                        <div class="slider-arrow arrow-next" onclick="changeSlide('gallery2', 1)"><i class="fa-solid fa-chevron-right"></i></div>
+                        <span class="slide-counter">1 / 2</span>
+                        <div class="slider-wrapper">
+                            <div class="framed-media-source active-slide" onclick="openExhibitZoom(this)"><img data-src="img/mississipi.webp" alt="Mississippi River 1" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/miss.jpg" alt="Mississippi River 2" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                        </div>
+                    </div>
+                    <div class="brass-placard">
+                        <h3>The Primary National Artery</h3>
+                        <p>In the mid-19th century, the Mississippi River served as the dominant trade artery of the nation. Steamboats, cargo rafts, and transient river networks blended frontier settlements with bustling urban merchants.</p>
+                        <div class="quote-casing">
+                            "We said there warn't no home like a raft, after all. Other places do seem so cramped and smothery, but a raft don't."
+                        </div>
+                        <div class="audio-container">
+                            <h4><i class="fa-solid fa-volume-high"></i> Exhibition Audio Guide</h4>
+                            <audio controls preload="none">
+                                <source src="voice/New recording 21.m4a" type="audio/mp4">
+                                Audio not supported.
+                            </audio>
+                        </div>
+                        <div class="video-container" style="margin-top: 1rem; background: rgba(8, 14, 20, 0.6); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 12px;">
+    <h4 style="font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--amber-copper); margin-bottom: 0.5rem; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Exhibition Media
+    </h4>
+    <a href="https://www.youtube.com/watch?v=O150kWxWSx8" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.75rem; color: #ffffff; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: rgba(244, 162, 97, 0.1); border: 1px solid var(--amber-copper); border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='rgba(244, 162, 97, 0.2)'" onmouseout="this.style.background='rgba(244, 162, 97, 0.1)'">
+        <i class="fa-solid fa-circle-play" style="color: var(--amber-copper); font-size: 1.2rem;"></i>
+        Watch: River & Steamboat History
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GALLERY III -->
+            <div id="gallery3" class="museum-room">
+                <div class="room-banner">
+                    <span class="floor-number">West Wing — Hall A</span>
+                    <h2>The Legal Codes of Enslavement</h2>
+                </div>
+                <div class="exhibition-wall">
+                    <div class="gold-framed-art">
+                        <div class="slider-arrow arrow-prev" onclick="changeSlide('gallery3', -1)"><i class="fa-solid fa-chevron-left"></i></div>
+                        <div class="slider-arrow arrow-next" onclick="changeSlide('gallery3', 1)"><i class="fa-solid fa-chevron-right"></i></div>
+                        <span class="slide-counter">1 / 5</span>
+                        <div class="slider-wrapper">
+                            <div class="framed-media-source active-slide" onclick="openExhibitZoom(this)"><img data-src="img/wows.jpg" alt="Legal Codes 1" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/sad.jpg" alt="Legal Codes 2" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/la.jpg" alt="Legal Codes 3" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/b.jpg" alt="Legal Codes 4" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/aww.jpg" alt="Legal Codes 5" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                           
+                        </div>
+                    </div>
+                    <div class="brass-placard">
+                        <h3>The Chains of Legislation</h3>
+                        <p>State-enforced Slave Codes prohibited literacy education and denied basic human assembly, while federal statutes like the Fugitive Slave Act of 1850 forced northern citizens to actively hunt and return escapees.</p>
+                        <div class="quote-casing">
+                            "I was a-trembling, because I'd got to decide, forever, betwixt two things, and I knowed it. I studied a minute... and says, 'All right, then, I'll go to hell!'"
+                        </div>
+                        <div class="audio-container">
+                            <h4><i class="fa-solid fa-volume-high"></i> Exhibition Audio Guide</h4>
+                            <audio controls preload="none">
+                                <source src="voice/New recording 22.m4a" type="audio/mp4">
+                                Audio not supported.
+                            </audio>
+                        </div>
+                        <div class="video-container" style="margin-top: 1rem; background: rgba(8, 14, 20, 0.6); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 12px;">
+    <h4 style="font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--amber-copper); margin-bottom: 0.5rem; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Exhibition Media
+    </h4>
+    <a href="https://www.youtube.com/watch?v=xhf_ECyXsEI" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.75rem; color: #ffffff; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: rgba(244, 162, 97, 0.1); border: 1px solid var(--amber-copper); border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='rgba(244, 162, 97, 0.2)'" onmouseout="this.style.background='rgba(244, 162, 97, 0.1)'">
+        <i class="fa-solid fa-circle-play" style="color: var(--amber-copper); font-size: 1.2rem;"></i>
+        Watch: The Fugitive Slave Act
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GALLERY IV -->
+            <div id="gallery4" class="museum-room">
+                <div class="room-banner">
+                    <span class="floor-number">West Wing — Hall B</span>
+                    <h2>Mark Twain: Author and Satirist</h2>
+                </div>
+                <div class="exhibition-wall">
+                    <div class="gold-framed-art">
+                        <div class="slider-arrow arrow-prev" onclick="changeSlide('gallery4', -1)"><i class="fa-solid fa-chevron-left"></i></div>
+                        <div class="slider-arrow arrow-next" onclick="changeSlide('gallery4', 1)"><i class="fa-solid fa-chevron-right"></i></div>
+                        <span class="slide-counter">1 / 10</span>
+                        <div class="slider-wrapper">
+                            <div class="framed-media-source active-slide" onclick="openExhibitZoom(this)"><img data-src="img/mark.webp" alt="Legal Codes 1" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/author.webp" alt="Legal Codes 2" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/m.jpg" alt="Legal Codes 3" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/aa.jpg" alt="Legal Codes 4" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/rr.jpg" alt="Legal Codes 5" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/kk.webp" alt="Legal Codes 6" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/w.jpg" alt="Legal Codes 7" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/o.webp" alt="Legal Codes 8" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/ww.jpg" alt="Legal Codes 9" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/ss.jpg" alt="Legal Codes 10" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                        </div>
+                    </div>
+                    <div class="brass-placard">
+                        <h3>Samuel Clemens' River Pilot Days</h3>
+                        <p>Samuel Langhorne Clemens took his pen name from the depth-gauge safe call 'Mark Twain' (two fathoms deep). His years piloting steam vessels gave him direct exposure to the complex moral and social tensions of river society.</p>
+                        <div class="quote-casing">
+                            "The difference between the right word and the almost right word is the difference between lightning and a lightning bug."
+                        </div>
+                        <div class="audio-container">
+                            <h4><i class="fa-solid fa-volume-high"></i> Exhibition Audio Guide</h4>
+                            <audio controls preload="none">
+                                <source src="voice/New recording 23.m4a" type="audio/mp4">
+                                Audio not supported.
+                            </audio>
+                        </div>
+                        <div class="video-container" style="margin-top: 1rem; background: rgba(8, 14, 20, 0.6); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 12px;">
+    <h4 style="font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--amber-copper); margin-bottom: 0.5rem; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Exhibition Media
+    </h4>
+    <a href="https://www.youtube.com/watch?v=TpICEruHjoc" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.75rem; color: #ffffff; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: rgba(244, 162, 97, 0.1); border: 1px solid var(--amber-copper); border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='rgba(244, 162, 97, 0.2)'" onmouseout="this.style.background='rgba(244, 162, 97, 0.1)'">
+        <i class="fa-solid fa-circle-play" style="color: var(--amber-copper); font-size: 1.2rem;"></i>
+        Watch: Mark Twain Biography
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GALLERY V -->
+            <div id="gallery5" class="museum-room">
+                <div class="room-banner">
+                    <span class="floor-number">North Wing — Archive Vault</span>
+                    <h2>Historical Framework and Publication Timeline</h2>
+                </div>
+                <div class="exhibition-wall">
+                    <div class="gold-framed-art">
+                        <div class="slider-arrow arrow-prev" onclick="changeSlide('gallery5', -1)"><i class="fa-solid fa-chevron-left"></i></div>
+                        <div class="slider-arrow arrow-next" onclick="changeSlide('gallery5', 1)"><i class="fa-solid fa-chevron-right"></i></div>
+                        <span class="slide-counter">1 / 10</span>
+                        <div class="slider-wrapper">
+                            <div class="framed-media-source active-slide" onclick="openExhibitZoom(this)"><img data-src="img/act.jpg" alt="Legal Codes 1" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/line.jpg" alt="Legal Codes 2" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/may.jpg" alt="Legal Codes 3" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/baby.jpg" alt="Legal Codes 4" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/catch.jpg" alt="Legal Codes 5" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/mi.jpg" alt="Legal Codes 6" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/twain.jpg" alt="Legal Codes 7" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/huck.jpg" alt="Legal Codes 8" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/book.jpg" alt="Legal Codes 9" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                            <div class="framed-media-source" onclick="openExhibitZoom(this)"><img data-src="img/arch.jpg" alt="Legal Codes 10" onerror="this.onerror=null;this.src='img/placeholder.jpg'"></div>
+                        </div>
+                    </div>
+                    <div class="brass-placard">
+                        <h3>Chronology and Archive Vault</h3>
+                        <p>Track the timeline from the Missouri Compromise of 1821 through the antebellum setting of the 1840s, all the way to Huckleberry Finn's eventual post-war publication in 1884. Navigate through our archival photo scans to see the physical records of the era.</p>
+                        <div class="quote-casing">
+                            "The passage of time changes all landscapes, but the river flows on, constant and unyielding."
+                        </div>
+                        <div class="audio-container">
+                            <h4><i class="fa-solid fa-volume-high"></i> Exhibition Audio Guide</h4>
+                            <audio controls preload="none">
+                                <source src="voice/New recording 24.m4a" type="audio/mp4">
+                                Audio not supported.
+                            </audio>
+                        </div>
+                        <div class="video-container" style="margin-top: 1rem; background: rgba(8, 14, 20, 0.6); border: 1px solid var(--glass-border); padding: 1rem; border-radius: 12px;">
+    <h4 style="font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--amber-copper); margin-bottom: 0.5rem; letter-spacing: 1px; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-brands fa-youtube" style="color: #ff0000;"></i> Exhibition Media
+    </h4>
+    <a href="https://www.youtube.com/watch?v=WXKgBIiP8IA" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.75rem; color: #ffffff; text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; background: rgba(244, 162, 97, 0.1); border: 1px solid var(--amber-copper); border-radius: 8px; transition: var(--transition);" onmouseover="this.style.background='rgba(244, 162, 97, 0.2)'" onmouseout="this.style.background='rgba(244, 162, 97, 0.1)'">
+        <i class="fa-solid fa-circle-play" style="color: var(--amber-copper); font-size: 1.2rem;"></i>
+        Watch: Huck Finn Context & Analysis
+    </a>
+</div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="lightbox-portal" onclick="closeExhibitZoom()">
+        <img id="zoom-img" src="" alt="Exhibit Zoom Close-up">
+    </div>
+
+    <script>
+        const slideIndexes = {
+            gallery1: 0,
+            gallery2: 0,
+            gallery3: 0,
+            gallery4: 0,
+            gallery5: 0
+        };
+
+        function loadFirstSlide(galleryId) {
+            const gallery = document.getElementById(galleryId);
+            const firstSlide = gallery.querySelector('.framed-media-source.active-slide');
+            if (!firstSlide) return;
+            const img = firstSlide.querySelector('img[data-src]');
+            if (img) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
+        }
+
+        function navigateToRoom(roomId, blueprintElement) {
+            document.querySelectorAll('.museum-room').forEach(room => room.classList.remove('active'));
+            document.querySelectorAll('.room-blueprint').forEach(bp => bp.classList.remove('active-room'));
+            document.getElementById(roomId).classList.add('active');
+            blueprintElement.classList.add('active-room');
+            loadFirstSlide(roomId);
+        }
+
+        function changeSlide(galleryId, direction) {
+            const gallery = document.getElementById(galleryId);
+            const slides = gallery.querySelectorAll('.framed-media-source');
+            const totalSlides = slides.length;
+
+            slides[slideIndexes[galleryId]].classList.remove('active-slide');
+            slideIndexes[galleryId] = (slideIndexes[galleryId] + direction + totalSlides) % totalSlides;
+
+            const nextSlide = slides[slideIndexes[galleryId]];
+            nextSlide.classList.add('active-slide');
+
+            const img = nextSlide.querySelector('img[data-src]');
+            if (img) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
+
+            const counter = gallery.querySelector('.slide-counter');
+            if (counter) counter.innerText = `${slideIndexes[galleryId] + 1} / ${totalSlides}`;
+        }
+
+        function openExhibitZoom(activeSlideElement) {
+            const lightbox = document.getElementById('lightbox');
+            const zoomImg = document.getElementById('zoom-img');
+            const imgInside = activeSlideElement.querySelector('img');
+            if (imgInside && imgInside.src) {
+                zoomImg.src = imgInside.src;
+                lightbox.classList.add('open');
+            }
+        }
+
+        function closeExhibitZoom() {
+            document.getElementById('lightbox').classList.remove('open');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFirstSlide('gallery1');
+        });
+    </script>
+
+</body>
+</html>
